@@ -99,6 +99,8 @@ L["Normal"] = "正常"
 L["You should rest at an Inn."] = "你应该在一个旅馆休息"
 
 -- stance bar
+L["Stances"] = "姿态栏"
+L["<Left-click> to toggle stance bar."] = "<单击左键>打开姿态栏"
 
 -- added to the interface options menu in WotLK
 L["Cast action keybinds on key down"] = true
