@@ -17,6 +17,14 @@ local UnitPowerMax = UnitPowerMax
 local PlayerIsRogue = select(2, UnitClass("player")) == "ROGUE" -- to check for rogue anticipation
 
 local MAX_COMBO_POINTS = MAX_COMBO_POINTS or 5
+local MAX_ANTICIPATION_POINTS = MAX_COMBO_POINTS or 5
+
+-- Rogues get a new anticipation system in Legion, 
+-- where anticipation is counted as merely 3 more combopoints.
+if Engine:IsBuild("Legion") and PlayerIsRogue then
+	MAX_COMBO_POINTS = 6
+	MAX_ANTICIPATION_POINTS = 3
+end
 
 
 -- Utility Functions
@@ -188,6 +196,18 @@ local UpdateLayers = function(self)
 	
 end
 
+-- This one will only be called in Legion, and only for Rogues
+local UpdateComboPoints = function(self)
+	local vehicle = UnitHasVehicleUI("player")
+	local combo_unit = vehicle and "vehicle" or "player"
+	local cp = UnitPower(combo_unit, SPELL_POWER_COMBO_POINTS)
+	local cp_max = UnitPowerMax(combo_unit, SPELL_POWER_COMBO_POINTS)
+	if cp_max == 8 then
+		cp_max = 5
+	end
+	self:SetSize(self.point_width*cp_max + self.point_padding*(cp_max-1), self.point_height)
+end
+
 local Update = function(self, event, ...)
 	UpdateLayers(self)
 	Classification_PostUpdate(self.Classification, self.unit)
@@ -311,6 +331,10 @@ local Style = function(self, unit)
 	local combo_g_last = .674509803921568 
 	local combo_b_last = .1450980392156863
 	
+	ComboPoints.point_width = cw
+	ComboPoints.point_height = ch
+	ComboPoints.point_padding = cp
+	
 	ComboPoints:SetSize(cw*MAX_COMBO_POINTS + cp*(MAX_COMBO_POINTS-1), ch)
 	ComboPoints:SetPoint("CENTER", 0, -22) -- perfect with power
 	--ComboPoints:SetPoint("CENTER", 0, -2) -- perfect without
@@ -359,10 +383,10 @@ local Style = function(self, unit)
 		local anticipation_g = 0.05
 		local anticipation_b = 0.15
 		
-		Anticipation:SetSize(cw*MAX_COMBO_POINTS + cp*(MAX_COMBO_POINTS-1), ch)
+		Anticipation:SetSize(cw*MAX_ANTICIPATION_POINTS + cp*(MAX_ANTICIPATION_POINTS-1), ch)
 		Anticipation:SetPoint("TOP", ComboPoints, "BOTTOM", 0, 0) 
 		
-		for i = 1, MAX_COMBO_POINTS do
+		for i = 1, MAX_ANTICIPATION_POINTS do
 			local AnticipationPoint = CreateFrame("Frame", nil, Anticipation)
 			AnticipationPoint:Hide()
 			AnticipationPoint:SetSize(cw, ch)
@@ -386,6 +410,10 @@ local Style = function(self, unit)
 		end
 		
 		ComboPoints.Anticipation = Anticipation
+	end
+	
+	if Engine:IsBuild("Legion") then
+		ComboPoints.PostUpdate = UpdateComboPoints
 	end
 	
 
