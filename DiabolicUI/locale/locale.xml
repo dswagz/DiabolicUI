@@ -5,5 +5,6 @@
 <Script file="locale-enUS.lua"/>
 <Script file="locale-ruRU.lua"/>
 <Script file="locale-zhCN.lua"/>
+<Script file="locale-zhTW.lua"/>
 
 </Ui>
