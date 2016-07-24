@@ -77,17 +77,33 @@ local colorize = function(str, color)
 	return ("|cff%02X%02X%02X%s|r"):format(floor(r*255), floor(g*255), floor(b*255), str)
 end
 
-local short = function(value)
-	value = tonumber(value)
-	if not value then return "" end
-	if value >= 1e6 then
-		return ("%.1f"):format(value / 1e6):gsub("%.?0+([km])$", "%1") .. colorize("m", "offwhite")
-	elseif value >= 1e3 or value <= -1e3 then
-		return ("%.1f"):format(value / 1e3):gsub("%.?0+([km])$", "%1") .. colorize("k", "offwhite")
-	else
-		return tostring(value)
+local short
+if GetLocale() == "zhCN" then
+	short = function(value)
+		value = tonumber(value)
+		if not value then return "" end
+		if value >= 1e8 then
+			return ("%.1f"):format(value / 1e8):gsub("%.?0+([km])$", "%1") .. colorize("亿", "offwhite")
+		elseif value >= 1e4 or value <= -1e3 then
+			return ("%.1f"):format(value / 1e4):gsub("%.?0+([km])$", "%1") .. colorize("万", "offwhite")
+		else
+			return tostring(value)
+		end 
+	end
+else
+	short = function(value)
+		value = tonumber(value)
+		if not value then return "" end
+		if value >= 1e6 then
+			return ("%.1f"):format(value / 1e6):gsub("%.?0+([km])$", "%1") .. colorize("m", "offwhite")
+		elseif value >= 1e3 or value <= -1e3 then
+			return ("%.1f"):format(value / 1e3):gsub("%.?0+([km])$", "%1") .. colorize("k", "offwhite")
+		else
+			return tostring(value)
+		end	
 	end	
 end
+
 
 BarWidget.OnEnter = function(self)
 	local data = self:UpdateData()
